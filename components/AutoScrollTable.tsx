@@ -26,7 +26,7 @@ export const AutoScrollTable = <T,>({
 }: AutoScrollTableProps<T>) => {
   const [isHovered, setIsHovered] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -64,7 +64,7 @@ export const AutoScrollTable = <T,>({
   const displayData = [...data, ...data];
 
   return (
-    <div className="flex flex-col border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden h-full">
+    <div className="flex flex-col border border-slate-700/50 rounded-lg bg-slate-800/40 backdrop-blur-md shadow-lg overflow-hidden h-full ring-1 ring-cyan-500/20">
       {/* 
         Horizontal Scroll Wrapper.
         If minWidth is provided, this container allows horizontal scrolling 
@@ -76,11 +76,11 @@ export const AutoScrollTable = <T,>({
           style={{ minWidth: minWidth || '100%' }}
         >
           {/* Header */}
-          <div className="flex bg-gray-50 border-b border-gray-200 font-bold text-xs text-gray-700 sticky top-0 z-10 shrink-0">
+          <div className="flex bg-slate-900/60 border-b border-slate-700 font-bold text-xs text-cyan-400 sticky top-0 z-10 shrink-0 uppercase tracking-wider">
             {columns.map((col, idx) => (
               <div
                 key={idx}
-                className={`p-2 truncate ${col.width || 'flex-1'} ${col.className || ''}`}
+                className={`p-3 truncate ${col.width || 'flex-1'} ${col.className || ''}`}
               >
                 {col.header}
               </div>
@@ -98,13 +98,13 @@ export const AutoScrollTable = <T,>({
               {displayData.map((item, index) => (
                 <div
                   key={index}
-                  className={`flex border-b border-gray-100 text-xs text-gray-600 hover:bg-blue-50 transition-colors`}
+                  className={`flex border-b border-slate-700/30 text-xs text-slate-300 hover:bg-cyan-900/20 transition-colors`}
                   style={{ height: `${rowHeight}px` }}
                 >
                   {columns.map((col, colIdx) => (
                     <div
                       key={colIdx}
-                      className={`px-2 truncate flex items-center ${col.width || 'flex-1'} ${col.className || ''}`}
+                      className={`px-3 truncate flex items-center ${col.width || 'flex-1'} ${col.className || ''}`}
                     >
                       {col.accessor(item)}
                     </div>

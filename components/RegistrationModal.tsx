@@ -25,6 +25,17 @@ const INITIAL_FORM_STATE: FormData = {
   contactEmail: '',
 };
 
+const TIME_SLOTS = [
+  '00:00-24:00 (全天)',
+  '08:00-18:00 (白天)',
+  '18:00-24:00 (晚间)',
+  '10:00-12:00 (早高峰)',
+  '14:00-18:00 (下午段)',
+  '17:00-22:00 (晚高峰)',
+  '12:00-14:00 (午间)',
+  '00:00-08:00 (夜间谷段)'
+];
+
 export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_STATE);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
@@ -70,30 +81,30 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in-up">
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in-up text-gray-200">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800">登记我的资源</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="flex justify-between items-center p-6 border-b border-slate-700 bg-slate-900/50">
+          <h2 className="text-xl font-bold text-cyan-400">登记我的资源</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
             <X size={24} />
           </button>
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="overflow-y-auto p-6 flex-1">
+        <div className="overflow-y-auto p-6 flex-1 custom-scrollbar">
           <form id="registrationForm" onSubmit={handleSubmit} className="space-y-4">
             
             {/* Company Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">企业名称 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">企业名称 <span className="text-red-400">*</span></label>
               <input
                 type="text"
                 name="companyName"
                 required
                 value={formData.companyName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 bg-white"
+                className="w-full px-3 py-2 border border-slate-600 rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 bg-slate-700 text-white placeholder-slate-400"
                 placeholder=""
               />
             </div>
@@ -101,13 +112,13 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
             {/* Region Selection (Province/City/District) */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">省份 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">省份 <span className="text-red-400">*</span></label>
                 <select
                   name="province"
                   required
                   value={formData.province}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 >
                   <option value="">请选择</option>
                   {Object.keys(CHINA_LOCATIONS).map(prov => (
@@ -116,14 +127,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">城市 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">城市 <span className="text-red-400">*</span></label>
                 <select
                   name="city"
                   required
                   value={formData.city}
                   onChange={handleChange}
                   disabled={!formData.province}
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
                 >
                   <option value="">请选择</option>
                   {availableCities.map(city => (
@@ -132,14 +143,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">区/县 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">区/县 <span className="text-red-400">*</span></label>
                 <select
                   name="district"
                   required
                   value={formData.district}
                   onChange={handleChange}
                   disabled={!formData.city}
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
                 >
                   <option value="">请选择</option>
                   {availableDistricts.map(dist => (
@@ -151,20 +162,20 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
 
             {/* Detailed Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">详细地址</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">详细地址</label>
               <textarea
                 name="address"
                 rows={2}
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
 
             {/* Capacity */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">需求容量 (MW) <span className="text-red-500">*</span></label>
-              <div className="flex items-center border border-gray-200 bg-gray-50 rounded-md overflow-hidden">
+              <label className="block text-sm font-medium text-slate-300 mb-1">需求容量 (MW) <span className="text-red-400">*</span></label>
+              <div className="flex items-center border border-slate-600 bg-slate-700 rounded-md overflow-hidden">
                 <input
                   type="number"
                   step="0.01"
@@ -172,24 +183,24 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                   required
                   value={formData.capacity}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-transparent focus:outline-none"
+                  className="w-full px-3 py-2 bg-transparent text-white focus:outline-none"
                 />
-                <div className="flex flex-col border-l border-gray-200">
-                  <button type="button" className="px-2 hover:bg-gray-200 text-xs py-1" onClick={() => setFormData(p => ({...p, capacity: (parseFloat(p.capacity || '0') + 0.1).toFixed(2)}))}>+</button>
-                  <button type="button" className="px-2 hover:bg-gray-200 text-xs py-1 border-t border-gray-200" onClick={() => setFormData(p => ({...p, capacity: Math.max(0, parseFloat(p.capacity || '0') - 0.1).toFixed(2)}))}>-</button>
+                <div className="flex flex-col border-l border-slate-600">
+                  <button type="button" className="px-2 hover:bg-slate-600 text-slate-300 text-xs py-1" onClick={() => setFormData(p => ({...p, capacity: (parseFloat(p.capacity || '0') + 0.1).toFixed(2)}))}>+</button>
+                  <button type="button" className="px-2 hover:bg-slate-600 text-slate-300 text-xs py-1 border-t border-slate-600" onClick={() => setFormData(p => ({...p, capacity: Math.max(0, parseFloat(p.capacity || '0') - 0.1).toFixed(2)}))}>-</button>
                 </div>
               </div>
             </div>
 
             {/* Demand Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">需求类型 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">需求类型 <span className="text-red-400">*</span></label>
               <select
                 name="demandType"
                 required
                 value={formData.demandType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               >
                 {DEMAND_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
@@ -200,7 +211,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
             {/* Conditional Input for "Other" */}
             {formData.demandType === '其他' && (
               <div className="animate-fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1">请补充说明具体需求类型 (必填)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">请补充说明具体需求类型 (必填)</label>
                 <input
                   type="text"
                   name="demandTypeOther"
@@ -208,64 +219,68 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                   value={formData.demandTypeOther}
                   onChange={handleChange}
                   placeholder="请输入具体类型"
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 />
               </div>
             )}
 
-            {/* Available Time */}
+            {/* Available Time (Selectable) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">可响应时段 (例如: 14:00-18:00)</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-slate-300 mb-1">可响应时段</label>
+              <select
                 name="availableTime"
                 value={formData.availableTime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
+              >
+                <option value="">请选择时段</option>
+                {TIME_SLOTS.map(time => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
             </div>
 
             {/* Industry Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">行业类型 (工业园区/商场/写字楼等)</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">行业类型 (工业园区/商场/写字楼等)</label>
               <input
                 type="text"
                 name="industryType"
                 value={formData.industryType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
 
             {/* Contact Info */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">联系人</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">联系人</label>
               <input
                 type="text"
                 name="contactName"
                 value={formData.contactName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">联系电话</label>
               <input
                 type="tel"
                 name="contactPhone"
                 value={formData.contactPhone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">联系邮箱</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">联系邮箱</label>
               <input
                 type="email"
                 name="contactEmail"
                 value={formData.contactEmail}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
 
@@ -273,11 +288,11 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-100 bg-gray-50">
+        <div className="p-6 border-t border-slate-700 bg-slate-900/50">
           <button
             type="submit"
             form="registrationForm"
-            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-md transition-colors shadow-md w-full sm:w-auto"
+            className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-2 px-6 rounded-md transition-all shadow-lg shadow-red-500/30 w-full sm:w-auto border border-red-400"
           >
             提交登记
           </button>
