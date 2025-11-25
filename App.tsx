@@ -154,11 +154,11 @@ function App() {
                   rowHeight={36}
                   columns={[
                     { header: '城市', accessor: (d) => d.city, className: 'flex-1' },
-                    { header: '站点', accessor: (d) => d.site_count, className: 'flex-1' },
-                    { header: '光伏', accessor: (d) => d.pv_mw.toFixed(1), className: 'flex-1' },
-                    { header: '储能', accessor: (d) => d.storage_mw.toFixed(1), className: 'flex-1' },
-                    { header: '充电', accessor: (d) => d.ev_mw.toFixed(1), className: 'flex-1' },
-                    { header: '合计', accessor: (d) => d.total_mw.toFixed(1), className: 'flex-1' },
+                    { header: '站点(个)', accessor: (d) => d.site_count, className: 'flex-1' },
+                    { header: '光伏(MW)', accessor: (d) => d.pv_mw.toFixed(1), className: 'flex-1' },
+                    { header: '储能(MW)', accessor: (d) => d.storage_mw.toFixed(1), className: 'flex-1' },
+                    { header: '充电(MW)', accessor: (d) => d.ev_mw.toFixed(1), className: 'flex-1' },
+                    { header: '合计(MW)', accessor: (d) => d.total_mw.toFixed(1), className: 'flex-1' },
                   ]}
                 />
               </div>
