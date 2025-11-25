@@ -1,0 +1,5 @@
+{
+  "name": "VPP Integration Platform",
+  "description": "Virtual Power Plant Resource Integration Platform with real-time dashboards and registration.",
+  "requestFramePermissions": []
+}
