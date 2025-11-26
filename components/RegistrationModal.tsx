@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { FormData, DEMAND_TYPES } from '../types';
@@ -13,7 +14,6 @@ const INITIAL_FORM_STATE: FormData = {
   companyName: '',
   province: '',
   city: '',
-  district: '',
   address: '',
   capacity: '0.00',
   demandType: '光伏',
@@ -25,42 +25,19 @@ const INITIAL_FORM_STATE: FormData = {
   contactEmail: '',
 };
 
-const TIME_SLOTS = [
-  '00:00-24:00 (全天)',
-  '08:00-18:00 (白天)',
-  '18:00-24:00 (晚间)',
-  '10:00-12:00 (早高峰)',
-  '14:00-18:00 (下午段)',
-  '17:00-22:00 (晚高峰)',
-  '12:00-14:00 (午间)',
-  '00:00-08:00 (夜间谷段)'
-];
-
 export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_STATE);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
-  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
 
   // Update available cities when province changes
   useEffect(() => {
     if (formData.province && CHINA_LOCATIONS[formData.province]) {
-      setAvailableCities(Object.keys(CHINA_LOCATIONS[formData.province]));
-      setFormData(prev => ({ ...prev, city: '', district: '' }));
+      setAvailableCities(CHINA_LOCATIONS[formData.province]);
+      setFormData(prev => ({ ...prev, city: '' }));
     } else {
       setAvailableCities([]);
-      setAvailableDistricts([]);
     }
   }, [formData.province]);
-
-  // Update available districts when city changes
-  useEffect(() => {
-    if (formData.province && formData.city && CHINA_LOCATIONS[formData.province][formData.city]) {
-      setAvailableDistricts(CHINA_LOCATIONS[formData.province][formData.city]);
-      setFormData(prev => ({ ...prev, district: '' }));
-    } else {
-      setAvailableDistricts([]);
-    }
-  }, [formData.city, formData.province]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -76,6 +53,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
     alert(`登记成功！\n企业: ${formData.companyName}\n您的数据已添加到大屏中。`);
     onClose();
     setFormData(INITIAL_FORM_STATE);
+  };
+
+  // Helper to parse current time range
+  const getTimes = () => {
+    const parts = formData.availableTime.split('-');
+    return {
+      start: parts[0] || '08:00',
+      end: parts[1] || '18:00'
+    };
   };
 
   if (!isOpen) return null;
@@ -109,8 +95,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
               />
             </div>
 
-            {/* Region Selection (Province/City/District) */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Region Selection (Province/City Only) */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">省份 <span className="text-red-400">*</span></label>
                 <select
@@ -139,22 +125,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
                   <option value="">请选择</option>
                   {availableCities.map(city => (
                     <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">区/县 <span className="text-red-400">*</span></label>
-                <select
-                  name="district"
-                  required
-                  value={formData.district}
-                  onChange={handleChange}
-                  disabled={!formData.city}
-                  className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 disabled:opacity-50"
-                >
-                  <option value="">请选择</option>
-                  {availableDistricts.map(dist => (
-                    <option key={dist} value={dist}>{dist}</option>
                   ))}
                 </select>
               </div>
@@ -224,20 +194,34 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, on
               </div>
             )}
 
-            {/* Available Time (Selectable) */}
+            {/* Available Time (Custom Range Picker) */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">可响应时段</label>
-              <select
-                name="availableTime"
-                value={formData.availableTime}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              >
-                <option value="">请选择时段</option>
-                {TIME_SLOTS.map(time => (
-                  <option key={time} value={time}>{time}</option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <input
+                    type="time"
+                    value={getTimes().start}
+                    onChange={(e) => {
+                      const currentEnd = getTimes().end;
+                      setFormData(prev => ({ ...prev, availableTime: `${e.target.value}-${currentEnd}` }));
+                    }}
+                    className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+                  />
+                </div>
+                <span className="text-slate-400">至</span>
+                <div className="flex-1">
+                  <input
+                    type="time"
+                    value={getTimes().end}
+                    onChange={(e) => {
+                      const currentStart = getTimes().start;
+                      setFormData(prev => ({ ...prev, availableTime: `${currentStart}-${e.target.value}` }));
+                    }}
+                    className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-white rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Industry Type */}

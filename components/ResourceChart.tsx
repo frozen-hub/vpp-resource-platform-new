@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   BarChart,
@@ -83,7 +84,7 @@ export const ResourceChart: React.FC<ResourceChartProps> = ({ data }) => {
       {/* 标题栏 */}
       <h3 className="text-cyan-400 font-bold ml-3 mt-2 text-sm tracking-wide flex items-center gap-2 shrink-0">
         <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_#22d3ee]"></span>
-        已登记资源统计趋势 
+        已登记资源统计趋势
       </h3>
       
       {/* 
@@ -119,10 +120,6 @@ export const ResourceChart: React.FC<ResourceChartProps> = ({ data }) => {
               <linearGradient id="barEv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#eab308" stopOpacity={1}/>
                 <stop offset="100%" stopColor="#eab308" stopOpacity={0.3}/>
-              </linearGradient>
-              <linearGradient id="barLoad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity={1}/>
-                <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.3}/>
               </linearGradient>
               <linearGradient id="barOther" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#06b6d4" stopOpacity={1}/>
@@ -163,8 +160,7 @@ export const ResourceChart: React.FC<ResourceChartProps> = ({ data }) => {
             <Bar dataKey="storage" name="储能" stackId="a" fill="url(#barStorage)" barSize={20} />
             <Bar dataKey="ev" name="充电" stackId="a" fill="url(#barEv)" barSize={20} />
             <Bar dataKey="pv" name="光伏" stackId="a" fill="url(#barPv)" barSize={20} />
-            <Bar dataKey="other" name="其他" stackId="a" fill="url(#barOther)" barSize={20} />
-            <Bar dataKey="load" name="空调" stackId="a" fill="url(#barLoad)" barSize={20} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="other" name="其他" stackId="a" fill="url(#barOther)" barSize={20} radius={[4, 4, 0, 0]} />
           </BarChart>
         </div>
       </div>
@@ -186,10 +182,6 @@ export const ResourceChart: React.FC<ResourceChartProps> = ({ data }) => {
         <div className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
           <span className="w-3 h-3 rounded-sm bg-[#06b6d4] shadow-[0_0_5px_#06b6d4]"></span>
           <span className="text-cyan-300">其他(MW)</span>
-        </div>
-        <div className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-          <span className="w-3 h-3 rounded-sm bg-[#f43f5e] shadow-[0_0_5px_#f43f5e]"></span>
-          <span className="text-rose-300">空调(kW)</span>
         </div>
       </div>
 

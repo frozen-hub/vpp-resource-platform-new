@@ -1,10 +1,10 @@
+
 export interface RegionStat {
   city: string;
   site_count: number;
   pv_mw: number;
   storage_mw: number;
   ev_mw: number;
-  load_mw: number;
   other_mw: number;
   total_mw: number;
 }
@@ -26,7 +26,6 @@ export interface ChartDataPoint {
   pv: number;
   storage: number;
   ev: number;
-  load: number;
   other: number;
 }
 
@@ -34,7 +33,6 @@ export interface FormData {
   companyName: string;
   province: string;
   city: string;
-  district: string;
   address: string;
   capacity: string;
   demandType: string;
@@ -46,4 +44,4 @@ export interface FormData {
   contactEmail: string;
 }
 
-export const DEMAND_TYPES = ['光伏', '储能', '充电桩', '空调负荷', '其他'];
+export const DEMAND_TYPES = ['光伏', '储能', '充电桩', '其他'];

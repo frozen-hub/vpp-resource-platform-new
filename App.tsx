@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { AutoScrollTable } from './components/AutoScrollTable';
 import { ResourceChart } from './components/ResourceChart';
@@ -47,7 +48,6 @@ function App() {
       pv_mw: number;
       storage_mw: number;
       ev_mw: number;
-      load_mw: number;
       other_mw: number;
       total_mw: number;
     }>();
@@ -58,18 +58,23 @@ function App() {
       const type = cust.demand_type || '';
 
       if (!cityMap.has(city)) {
-        cityMap.set(city, { site_count: 0, pv_mw: 0, storage_mw: 0, ev_mw: 0, load_mw: 0, other_mw: 0, total_mw: 0 });
+        cityMap.set(city, { site_count: 0, pv_mw: 0, storage_mw: 0, ev_mw: 0, other_mw: 0, total_mw: 0 });
       }
 
       const entry = cityMap.get(city)!;
       entry.site_count += 1;
       entry.total_mw += cap;
 
-      if (type.includes('光伏')) entry.pv_mw += cap;
-      else if (type.includes('储能')) entry.storage_mw += cap;
-      else if (type.includes('充电')) entry.ev_mw += cap;
-      else if (type.includes('空调') || type.includes('负荷')) entry.load_mw += cap;
-      else entry.other_mw += cap;
+      if (type.includes('光伏')) {
+        entry.pv_mw += cap;
+      } else if (type.includes('储能')) {
+        entry.storage_mw += cap;
+      } else if (type.includes('充电')) {
+        entry.ev_mw += cap;
+      } else {
+        // 包括 '空调', '负荷', '其他' 以及所有未匹配类型，全部归为其他
+        entry.other_mw += cap;
+      }
     });
 
     // 2. Convert to RegionStat Array
@@ -84,9 +89,8 @@ function App() {
       pv: data.pv_mw,
       storage: data.storage_mw,
       ev: data.ev_mw,
-      load: data.load_mw,
       other: data.other_mw
-    })).sort((a, b) => (b.pv + b.storage + b.ev + b.load + b.other) - (a.pv + a.storage + a.ev + a.load + a.other));
+    })).sort((a, b) => (b.pv + b.storage + b.ev + b.other) - (a.pv + a.storage + a.ev + a.other));
 
     setRegionStats(newRegionStats);
     setChartData(newChartData);
@@ -149,7 +153,7 @@ function App() {
       company_name: data.companyName,
       province: data.province,
       city: data.city,
-      district: data.district,
+      // district removed
       address: data.address,
       capacity_mw: capacity,
       demand_type: demandTypeString,
