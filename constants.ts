@@ -1,16 +1,6 @@
 import { RegionStat, Customer, ChartDataPoint } from './types';
 
-export const MOCK_REGION_STATS: RegionStat[] = [
-  { city: '南宁', site_count: 1, pv_mw: 0.0, storage_mw: 0.0, ev_mw: 0.0, load_mw: 0.0, other_mw: 1.0, total_mw: 1.0 },
-  { city: '惠州', site_count: 1, pv_mw: 0.5, storage_mw: 0.0, ev_mw: 0.0, load_mw: 0.0, other_mw: 0.9, total_mw: 1.4 },
-  { city: '珠海', site_count: 2, pv_mw: 0.0, storage_mw: 0.2, ev_mw: 0.0, load_mw: 0.0, other_mw: 0.8, total_mw: 1.0 },
-  { city: '云浮', site_count: 1, pv_mw: 0.0, storage_mw: 0.0, ev_mw: 0.0, load_mw: 0.0, other_mw: 0.6, total_mw: 0.6 },
-  { city: '广州', site_count: 3, pv_mw: 1.2, storage_mw: 0.0, ev_mw: 0.5, load_mw: 0.0, other_mw: 0.5, total_mw: 2.2 },
-  { city: '中山', site_count: 1, pv_mw: 0.0, storage_mw: 0.0, ev_mw: 0.0, load_mw: 0.0, other_mw: 0.4, total_mw: 0.4 },
-  { city: '深圳', site_count: 5, pv_mw: 2.0, storage_mw: 1.5, ev_mw: 0.8, load_mw: 0.5, other_mw: 0.2, total_mw: 5.0 },
-  { city: '佛山', site_count: 2, pv_mw: 0.8, storage_mw: 0.1, ev_mw: 0.2, load_mw: 0.3, other_mw: 0.0, total_mw: 1.4 },
-];
-
+// Used as a fallback if Supabase is not connected or returns empty data
 export const MOCK_CUSTOMERS: Customer[] = [
   { id: '1', company_name: '王国维全国采购', province: '广东', city: '云浮', capacity_mw: 4.0, demand_type: '削峰', industry: '服务服务费', contact: '张三', phone: '13800138000' },
   { id: '2', company_name: '发我尽快发发文件', province: '广东', city: '深圳', capacity_mw: 0.6, demand_type: '充电桩', industry: '服务范围给', contact: '李四', phone: '13912345678' },
@@ -27,15 +17,6 @@ export const MOCK_CUSTOMERS: Customer[] = [
   { id: '13', company_name: '绿色动力', province: '上海', city: '浦东', capacity_mw: 2.0, demand_type: '光伏', industry: '制造', contact: '陈工', phone: '13812345678' },
   { id: '14', company_name: '未来能源', province: '浙江', city: '杭州', capacity_mw: 0.8, demand_type: '空调负荷', industry: '商业', contact: '黄经理', phone: '13987654321' },
   { id: '15', company_name: '智慧电力', province: '江苏', city: '苏州', capacity_mw: 1.5, demand_type: '充电桩', industry: '公共', contact: '吴所', phone: '13700009999' },
-];
-
-export const CHART_DATA: ChartDataPoint[] = [
-  { name: '深圳', pv: 0.6, storage: 0.5, ev: 7.5, load: 0, other: 0 },
-  { name: '南宁', pv: 0, storage: 0, ev: 0, load: 0, other: 1 },
-  { name: '惠州', pv: 0, storage: 0, ev: 0, load: 0, other: 0.9 },
-  { name: '珠海', pv: 0, storage: 0, ev: 0, load: 0, other: 0.8 },
-  { name: '云浮', pv: 0, storage: 0, ev: 0, load: 0, other: 0.6 },
-  { name: '广州', pv: 0, storage: 0, ev: 0, load: 0, other: 0.5 },
 ];
 
 // Helper to generate default districts for cities to save space while keeping the app functional

@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AutoScrollTable } from './components/AutoScrollTable';
 import { ResourceChart } from './components/ResourceChart';
 import { RegistrationModal } from './components/RegistrationModal';
 import { supabase } from './supabaseClient';
-import { MOCK_REGION_STATS, CHART_DATA, MOCK_CUSTOMERS } from './constants';
 import { RegionStat, Customer, ChartDataPoint, FormData } from './types';
+import { MOCK_CUSTOMERS } from './constants';
 
 // Helper for masking name: 张三 -> 张**
 const maskName = (name: string) => {
@@ -23,17 +22,24 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Initialize with Mock Data so the app is populated by default
-  const [customers, setCustomers] = useState<Customer[]>(MOCK_CUSTOMERS);
+  // Initialize with empty array, waiting for DB fetch
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   // Derived State (Calculated from customers)
-  const [regionStats, setRegionStats] = useState<RegionStat[]>(MOCK_REGION_STATS);
-  const [chartData, setChartData] = useState<ChartDataPoint[]>(CHART_DATA);
+  const [regionStats, setRegionStats] = useState<RegionStat[]>([]);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
 
   // --- Data Aggregation Logic ---
   // This calculates the Table and Chart data whenever 'customers' changes
   useEffect(() => {
-    if (customers.length === 0) return;
+    // If we have no customers (and not loading), we might show empty stats
+    // But usually if customers is populated (either from DB or Mock), this runs.
+    
+    if (customers.length === 0) {
+      setRegionStats([]);
+      setChartData([]);
+      return;
+    }
 
     // 1. Group by City
     const cityMap = new Map<string, {
@@ -102,8 +108,8 @@ function App() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('Supabase fetch error (using mock data):', error.message);
-        // Do not clear MOCK data if fetch fails
+        console.warn('Supabase fetch error, falling back to mock data:', error.message);
+        setCustomers(MOCK_CUSTOMERS);
       } else {
         if (data && data.length > 0) {
           const mappedCustomers: Customer[] = data.map(d => ({
@@ -118,10 +124,15 @@ function App() {
             phone: d.contact_phone || ''
           }));
           setCustomers(mappedCustomers);
+        } else {
+          // If DB is empty, also use Mock Data so the user sees something
+          console.log('Supabase returned empty, using mock data for demo.');
+          setCustomers(MOCK_CUSTOMERS);
         }
       }
     } catch (err) {
-      console.warn('Supabase connection error (using mock data). Check supabaseClient.ts settings.');
+      console.warn('Supabase connection error, falling back to mock data.');
+      setCustomers(MOCK_CUSTOMERS);
     } finally {
       setLoading(false);
     }
@@ -155,10 +166,9 @@ function App() {
         .insert([dbPayload]);
 
         if (error) {
-            // If DB insert fails (e.g. invalid URL), fallback to local state update so user sees change
             console.warn('DB Insert failed, updating local state only:', error.message);
             updateLocalState(dbPayload);
-            alert('注意：由于数据库连接未配置，数据仅在当前会话保存。');
+            alert('注意：由于数据库连接未配置或失败，数据仅在当前会话保存。');
         } else {
             // 3. Refetch to update UI
             await fetchCustomers();
@@ -166,7 +176,7 @@ function App() {
     } catch (e) {
         console.warn('DB Connection failed, updating local state only');
         updateLocalState(dbPayload);
-        alert('注意：由于数据库连接未配置，数据仅在当前会话保存。');
+        alert('注意：由于数据库连接未配置或失败，数据仅在当前会话保存。');
     }
   };
 
@@ -187,98 +197,106 @@ function App() {
   };
 
   return (
-    <div className="h-screen tech-bg font-sans text-gray-200 flex flex-col overflow-hidden">
-      {/* Decorative Grid Overlay */}
-      <div className="absolute inset-0 perspective-container pointer-events-none z-0 overflow-hidden">
+    // Root Container: Using min-h-screen and overflow-auto to allow scrolling
+    <div className="min-h-screen tech-bg font-sans text-gray-200 flex flex-col relative overflow-auto">
+      
+      {/* Decorative Grid Overlay - Fixed position so it stays during scroll */}
+      <div className="fixed inset-0 perspective-container pointer-events-none z-0 overflow-hidden">
         <div className="cyber-floor"></div>
         <div className="ambient-glow"></div>
       </div>
       
-      <div className="absolute inset-0 pointer-events-none z-0 scanline"></div>
+      <div className="fixed inset-0 pointer-events-none z-0 scanline"></div>
 
-      {/* Header */}
-      <header className="relative z-10 py-4 text-center border-b border-cyan-500/20 bg-slate-900/60 shrink-0 backdrop-blur-sm shadow-[0_4px_20px_-5px_rgba(8,145,178,0.3)]">
-        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 tracking-[0.2em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
-          虚拟电厂资源整合平台
-        </h1>
-        <div className="w-full h-[1px] mt-4 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-        <div className="w-32 h-[2px] mx-auto bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
-      </header>
-
-      <main className="relative z-10 flex-1 min-w-[1280px] w-full mx-auto px-6 py-6 flex flex-col min-h-0 overflow-x-auto">
+      {/* 
+         Content Wrapper:
+         Removed min-w-[1280px] to allow responsive resizing on mobile.
+         Added padding adjustment for mobile vs desktop.
+      */}
+      <div className="flex flex-col flex-1 relative z-10 p-4 lg:p-6 min-h-screen">
         
-        {/* Main Layout Grid */}
-        <div className="flex-1 grid grid-cols-12 gap-6 min-h-0">
+        {/* Header */}
+        <header className="relative py-4 text-center border-b border-cyan-500/20 bg-slate-900/60 shrink-0 backdrop-blur-sm shadow-[0_4px_20px_-5px_rgba(8,145,178,0.3)] mb-6">
+          <h1 className="text-xl lg:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 tracking-[0.2em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
+            虚拟电厂资源整合平台
+          </h1>
+          <div className="w-full h-[1px] mt-4 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+          <div className="w-32 h-[2px] mx-auto bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
+        </header>
+
+        {/* Main Layout Grid: Single column on mobile, 12 columns on desktop */}
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          {/* LEFT COLUMN: Demand Table + Resource Chart (66%) */}
-          <div className="col-span-8 flex flex-col gap-6 min-h-0">
+          {/* LEFT COLUMN: Demand Table + Resource Chart */}
+          <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
             
             {/* Top Left: Regional Demand Stats */}
-            <div className="flex flex-col h-1/2 min-h-0">
+            <div className="flex flex-col h-[300px]">
               <div className="flex items-center gap-2 mb-2 shrink-0">
                 <div className="w-2 h-2 bg-cyan-400 rotate-45 shadow-[0_0_5px_#22d3ee]"></div>
                 <h2 className="text-lg font-bold text-cyan-100 tracking-wide text-shadow">各地需求量统计</h2>
               </div>
-              <div className="flex-1 overflow-hidden min-h-0">
-                <AutoScrollTable<RegionStat>
+              <div className="flex-1 overflow-hidden">
+                <AutoScrollTable
                   data={regionStats}
                   height="h-full"
                   rowHeight={40}
+                  minWidth="600px" // Ensure horizontal scroll on mobile
                   columns={[
-                    { header: '城市', accessor: (d) => <span className="font-medium text-cyan-200">{d.city}</span>, className: 'flex-1' },
-                    { header: '站点(个)', accessor: (d) => <span className="text-white">{d.site_count}</span>, className: 'flex-1' },
-                    { header: '光伏(MW)', accessor: (d) => <span className="text-indigo-300">{d.pv_mw.toFixed(1)}</span>, className: 'flex-1' },
-                    { header: '储能(MW)', accessor: (d) => <span className="text-green-300">{d.storage_mw.toFixed(1)}</span>, className: 'flex-1' },
-                    { header: '充电(MW)', accessor: (d) => <span className="text-yellow-300">{d.ev_mw.toFixed(1)}</span>, className: 'flex-1' },
-                    { header: '合计(MW)', accessor: (d) => <span className="font-bold text-cyan-400">{d.total_mw.toFixed(1)}</span>, className: 'flex-1' },
+                    { header: '城市', accessor: (d: RegionStat) => <span className="font-medium text-cyan-200">{d.city}</span>, className: 'flex-1' },
+                    { header: '站点(个)', accessor: (d: RegionStat) => <span className="text-white">{d.site_count}</span>, className: 'flex-1' },
+                    { header: '光伏(MW)', accessor: (d: RegionStat) => <span className="text-indigo-300">{d.pv_mw.toFixed(1)}</span>, className: 'flex-1' },
+                    { header: '储能(MW)', accessor: (d: RegionStat) => <span className="text-green-300">{d.storage_mw.toFixed(1)}</span>, className: 'flex-1' },
+                    { header: '充电(MW)', accessor: (d: RegionStat) => <span className="text-yellow-300">{d.ev_mw.toFixed(1)}</span>, className: 'flex-1' },
+                    { header: '合计(MW)', accessor: (d: RegionStat) => <span className="font-bold text-cyan-400">{d.total_mw.toFixed(1)}</span>, className: 'flex-1' },
                   ]}
                 />
               </div>
             </div>
 
             {/* Bottom Left: Resource Chart */}
-            <div className="flex flex-col h-1/2 min-h-0">
+            <div className="flex flex-col h-[300px]">
                <ResourceChart data={chartData} />
             </div>
 
           </div>
 
-          {/* RIGHT COLUMN: Customer List (33%) */}
-          <div className="col-span-4 flex flex-col min-h-0">
+          {/* RIGHT COLUMN: Customer List */}
+          <div className="col-span-1 lg:col-span-4 flex flex-col h-[500px] lg:h-[624px]">
             <div className="flex items-center gap-2 mb-2 shrink-0">
               <div className="w-2 h-2 bg-purple-400 rotate-45 shadow-[0_0_5px_#a855f7]"></div>
               <h2 className="text-lg font-bold text-cyan-100 tracking-wide">客户列表</h2>
             </div>
-            <div className="flex-1 overflow-hidden min-h-0"> 
-              <AutoScrollTable<Customer>
+            <div className="flex-1 overflow-hidden"> 
+              <AutoScrollTable
                 data={customers}
                 height="h-full"
                 rowHeight={42}
-                minWidth="1000px" 
+                minWidth="1000px" // Always horizontal scroll on mobile for detailed view
                 columns={[
                   { 
                     header: '企业名称', 
-                    accessor: (d) => <span className="font-medium text-slate-200 truncate block hover:text-cyan-300 transition-colors" title={d.company_name}>{d.company_name}</span>, 
+                    accessor: (d: Customer) => <span className="font-medium text-slate-200 truncate block hover:text-cyan-300 transition-colors" title={d.company_name}>{d.company_name}</span>, 
                     className: 'min-w-[180px] flex-1' 
                   },
                   { 
                     header: '省份', 
-                    accessor: (d) => d.province, 
+                    accessor: (d: Customer) => d.province, 
                     className: 'min-w-[60px] flex-1 text-slate-400' 
                   },
                   { 
                     header: '城市', 
-                    accessor: (d) => d.city, 
+                    accessor: (d: Customer) => d.city, 
                     className: 'min-w-[60px] flex-1 text-slate-400' 
                   },
                   { 
                     header: '容量(MW)', 
-                    accessor: (d) => <span className="text-cyan-400 font-bold">{d.capacity_mw}</span>, 
+                    accessor: (d: Customer) => <span className="text-cyan-400 font-bold">{d.capacity_mw}</span>, 
                     className: 'min-w-[80px] flex-1' 
                   },
                   { 
                     header: '需求类型', 
-                    accessor: (d) => (
+                    accessor: (d: Customer) => (
                       <span className={`px-2 py-0.5 rounded-sm text-xs border whitespace-nowrap ${
                         d.demand_type.includes('光伏') 
                           ? 'bg-orange-500/10 text-orange-300 border-orange-500/30' 
@@ -291,17 +309,17 @@ function App() {
                   },
                   { 
                     header: '行业', 
-                    accessor: (d) => <span className="text-slate-300">{d.industry}</span>, 
+                    accessor: (d: Customer) => <span className="text-slate-300">{d.industry}</span>, 
                     className: 'min-w-[100px] flex-1' 
                   },
                   { 
                     header: '联系人', 
-                    accessor: (d) => maskName(d.contact), 
+                    accessor: (d: Customer) => maskName(d.contact), 
                     className: 'min-w-[80px] flex-1 text-slate-400' 
                   },
                   { 
                     header: '电话', 
-                    accessor: (d) => maskPhone(d.phone), 
+                    accessor: (d: Customer) => maskPhone(d.phone), 
                     className: 'min-w-[120px] flex-1 text-slate-400 font-mono' 
                   },
                 ]}
@@ -309,19 +327,20 @@ function App() {
             </div>
           </div>
 
-        </div>
+        </main>
 
         {/* Bottom Section: Registration Trigger */}
-        <div className="mt-4 pt-2 pb-2 text-center shrink-0">
+        <div className="mt-8 pt-4 pb-12 text-center shrink-0">
           <button
             onClick={() => setIsModalOpen(true)}
             className="group relative bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3 px-16 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.4)] transform transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(239,68,68,0.6)] flex items-center justify-center mx-auto gap-3 text-lg border border-red-400/50"
           >
-             <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md animate-pulse"></div>
+             <span className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md animate-pulse" />
             <span className="text-2xl leading-none mb-1">+</span> 登记我的资源
           </button>
         </div>
-      </main>
+
+      </div>
 
       {/* Registration Modal */}
       <RegistrationModal 

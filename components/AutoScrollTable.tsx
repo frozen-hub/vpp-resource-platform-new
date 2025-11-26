@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-interface Column<T> {
+export interface Column<T> {
   header: string;
   accessor: (item: T) => React.ReactNode;
   width?: string;

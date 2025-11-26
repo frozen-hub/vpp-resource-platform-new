@@ -63,15 +63,96 @@
         from { opacity: 0; }
         to { opacity: 1; }
       }
+
+      /* 3D Floor Animation */
+      .perspective-container {
+        perspective: 1000px;
+        overflow: hidden;
+      }
+
+      .cyber-floor {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background-image: 
+          linear-gradient(to right, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+        background-size: 60px 60px;
+        transform: rotateX(60deg) translateY(-20%);
+        animation: grid-move 10s linear infinite;
+        left: -50%;
+        top: -50%;
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 90%);
+      }
+
+      .ambient-glow {
+        position: absolute;
+        top: -20%;
+        left: 20%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(0,0,0,0) 70%);
+        filter: blur(80px);
+        animation: pulse-glow 8s ease-in-out infinite alternate;
+      }
+
+      @keyframes grid-move {
+        0% { transform: rotateX(60deg) translateY(0); }
+        100% { transform: rotateX(60deg) translateY(60px); }
+      }
+
+      @keyframes pulse-glow {
+        0% { opacity: 0.5; transform: scale(1); }
+        100% { opacity: 0.8; transform: scale(1.1); }
+      }
+
+      /* Scanline Effect */
+      .scanline {
+        width: 100%;
+        height: 10px;
+        background: linear-gradient(to bottom, rgba(6,182,212,0), rgba(6,182,212,0.3), rgba(6,182,212,0));
+        position: absolute;
+        top: -10px;
+        left: 0;
+        animation: scan 8s linear infinite;
+        opacity: 0.3;
+        pointer-events: none;
+      }
+
+      @keyframes scan {
+        0% { top: -10%; }
+        100% { top: 110%; }
+      }
+
+      /* Tech Corners (HUD Brackets) */
+      .tech-corner {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        border-color: rgba(34, 211, 238, 0.6); /* cyan-400 */
+        border-style: solid;
+        transition: all 0.3s ease;
+        pointer-events: none;
+      }
+      
+      .tech-corner-tl { top: 0; left: 0; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+      .tech-corner-tr { top: 0; right: 0; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+      .tech-corner-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+      .tech-corner-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+      .group:hover .tech-corner {
+        border-color: rgba(34, 211, 238, 1);
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
     "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.84.0"
   }
 }
