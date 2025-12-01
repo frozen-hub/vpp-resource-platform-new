@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AutoScrollTable } from './components/AutoScrollTable';
 import { ResourceChart } from './components/ResourceChart';
@@ -122,7 +123,10 @@ function App() {
             contact: d.contact_name || '',
             phone: d.contact_phone || ''
           }));
-          setCustomers(mappedCustomers);
+          
+          // CHANGE: Merge Real Data (mappedCustomers) with Mock Data (MOCK_CUSTOMERS)
+          // Real data goes first so it appears at the top of the list
+          setCustomers([...mappedCustomers, ...MOCK_CUSTOMERS]);
         } else {
           console.log('Supabase returned empty, using mock data for demo.');
           setCustomers(MOCK_CUSTOMERS);
