@@ -280,7 +280,7 @@ function App() {
               data={customers}
               height="h-full"
               rowHeight={32}
-              minWidth="100%"
+              minWidth="800px" 
               columns={[
                 { 
                   header: '企业名称', 

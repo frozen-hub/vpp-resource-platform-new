@@ -73,10 +73,10 @@ export const AutoScrollTable = <T,>({
     >
       {/* 
         Horizontal Scroll Wrapper.
-        FORCED overflow-x-hidden here to strictly adhere to "Dashboard" view (no scrollbars).
-        If content is too wide, it must truncate.
+        CHANGED: overflow-x-auto allows horizontal scrolling if minWidth is larger than screen.
+        Added custom-scrollbar class for styling.
       */}
-      <div className="overflow-x-hidden h-full w-full">
+      <div className="overflow-x-auto h-full w-full custom-scrollbar">
         <div 
           className="flex flex-col h-full" 
           style={{ minWidth: minWidth || '100%' }}
